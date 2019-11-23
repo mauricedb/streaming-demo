@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    <button onclick="loadStreamingData()">Load Streaming Data</button>
+    <button onclick="loadEventSourceData()">Load Event Source Data</button>
+</div>
+
+<script type="text/javascript">
+
+  async function loadStreamingData() {
+    const rsp = await fetch("/api/stream");
+    const reader = rsp.body.getReader();
+    let result = await reader.read();
+    while (!result.done) {
+      if (result.value) {
+        const json = Array.from(result.value)
+          .map(c => String.fromCharCode(c))
+          .join("");
+        const value = JSON.parse(json);
+        console.log(value);
+      }
+      result = await reader.read();
+    }
+  }
+
+  function loadEventSourceData() {
+    var source = new EventSource("/api/sse");
+
+    source.onmessage = function(event) {
+      console.log(JSON.parse(event.data));
+    };
+
+    source.onerror = function(event) {
+      source.close();
+    };
+  }
+
+</script>
+
+

@@ -13,14 +13,13 @@
 <script type="text/javascript">
 
   async function loadStreamingData() {
+    const decoder = new TextDecoder();
     const rsp = await fetch("/api/stream");
     const reader = rsp.body.getReader();
     let result = await reader.read();
     while (!result.done) {
       if (result.value) {
-        const json = Array.from(result.value)
-          .map(c => String.fromCharCode(c))
-          .join("");
+        const json =decoder.decode(result.value)
         const value = JSON.parse(json);
         console.log(value);
       }
